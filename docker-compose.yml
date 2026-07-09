@@ -39,7 +39,16 @@ services:
       timeout: 10s
       retries: 5
       start_period: 15s
+  redis:
+    image: redis:8
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
 volumes:
   postgresql_data:
-    driver: local
+    driver: local # default, explicit for learning
