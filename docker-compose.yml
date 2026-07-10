@@ -48,7 +48,26 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.3
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: false
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
 
 volumes:
   postgresql_data:
+    driver: local # default, explicit for learning
+  elasticsearch_data:
     driver: local # default, explicit for learning
