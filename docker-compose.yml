@@ -1,7 +1,6 @@
 services:
   kafka:
     image: apache/kafka:4.3.1
-    container_name: kafka
     ports:
       - "9092:9092"
     environment:
@@ -28,11 +27,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: MyUser
-      POSTGRES_PASSWORD: MyPass
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: order_db
     volumes:
       - postgresql_data:/var/lib/postgresql
+      - ./init-scripts/init-keycloak-db.sql:/docker-entrypoint-initdb.d/init-keycloak-db.sql
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -64,7 +65,33 @@ services:
       timeout: 10s
       retries: 5
       start_period: 20s
-
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6.4
+    container_name: keycloak
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KC_BOOTSTRAP_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_BOOTSTRAP_ADMIN_PASSWORD}
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak_db   # "postgres" is the postgres service name in compose
+      KC_DB_USERNAME: ${POSTGRES_USER}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: "false"    # production mode otherwise requires HTTPS
+      KC_HTTP_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"      # health endpoint won't come up without this
+    command: start
+    ports:
+      - "8181:8080"   # NOT 8080:8080 - conflicts with the future order-service
+      - "9000:9000"   # health/metrics live here, not on 8080
+    healthcheck:
+      test: [ "CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/9000 && printf 'GET /health/ready HTTP/1.1\r\nhost: localhost\r\nConnection: close\r\n\r\n' >&3 && cat <&3 | grep -q '\"status\": \"UP\"'" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
 
 volumes:
   postgresql_data:
