@@ -92,6 +92,21 @@ services:
       timeout: 5s
       retries: 10
       start_period: 40s
+  localstack:
+    image: localstack/localstack:2026.06.0
+    environment:
+      - SERVICES=s3,sqs
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}
+      - DEBUG=0
+    ports:
+      - "4566:4566"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:4566/_localstack/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
 
 volumes:
   postgresql_data:
