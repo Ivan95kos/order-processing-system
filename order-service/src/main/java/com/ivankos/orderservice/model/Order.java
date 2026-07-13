@@ -14,7 +14,7 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "orders")
 @Getter
-@Builder
+@Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Order {
@@ -38,4 +38,12 @@ public class Order {
     @LastModifiedDate
     private Instant updatedAt;
 
+
+    public static Order create(UUID customerId, BigDecimal totalAmount) {
+        return Order.builder()
+                .customerId(customerId)
+                .status(OrderStatus.PENDING)
+                .totalAmount(totalAmount)
+                .build();
+    }
 }
