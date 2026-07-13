@@ -1,6 +1,5 @@
-package com.ivankos.orderservice.config;
+package com.ivankos.orderservice.exception;
 
-import com.ivankos.orderservice.exception.OrderNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;

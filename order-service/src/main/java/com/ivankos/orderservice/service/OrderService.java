@@ -2,19 +2,28 @@ package com.ivankos.orderservice.service;
 
 import com.ivankos.orderservice.dto.CreateOrderRequest;
 import com.ivankos.orderservice.dto.OrderResponse;
+import com.ivankos.orderservice.event.OrderEvent;
 import com.ivankos.orderservice.exception.OrderNotFoundException;
 import com.ivankos.orderservice.mapper.OrderMapper;
 import com.ivankos.orderservice.model.Order;
 import com.ivankos.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
+
+    @Value("${app.kafka.topic.order-events}")
+    private final String orderEventsTopic;
+
+    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
@@ -24,8 +33,18 @@ public class OrderService {
                 createOrderRequest.customerId(),
                 BigDecimal.ZERO); // TODO: real pricing from Inventory (step 3)
 
-        return orderMapper.toResponse(
-                orderRepository.save(order));
+        var savedOrder = orderRepository.save(order);
+
+        var orderCreatedEvent = orderMapper.toCreatedEvent(
+                UUID.randomUUID(),
+                Instant.now(),
+                savedOrder,
+                createOrderRequest.items()
+        );
+
+        kafkaTemplate.send(orderEventsTopic, savedOrder.getId().toString(), orderCreatedEvent);
+
+        return orderMapper.toResponse(savedOrder);
     }
 
     public OrderResponse getOrder(UUID orderId) {
