@@ -23,19 +23,22 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "customer_id")
+    @Column(name = "customer_id",  nullable = false)
     private UUID customerId;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 32, nullable = false)
     private OrderStatus status;
 
-    @Column(name = "total_amount", precision = 19, scale = 2)
+    @Column(name = "total_amount", precision = 19, scale = 2, nullable = false)
     private BigDecimal totalAmount;
 
     @CreatedDate
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
 

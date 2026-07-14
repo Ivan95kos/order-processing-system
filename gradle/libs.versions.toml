@@ -15,6 +15,7 @@ spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-bo
 spring-boot-starter-actuator-test = { module = "org.springframework.boot:spring-boot-starter-actuator-test" }
 
 postgresql = { module = "org.postgresql:postgresql" }
+spring-boot-liquibase = { module = "org.springframework.boot:spring-boot-liquibase" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }

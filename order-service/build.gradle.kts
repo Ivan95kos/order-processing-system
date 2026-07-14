@@ -21,6 +21,7 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 
     runtimeOnly(libs.postgresql)
+    implementation(libs.spring.boot.liquibase)
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
