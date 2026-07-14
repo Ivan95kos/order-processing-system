@@ -1,0 +1,26 @@
+### Create order
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "customerId": "550e8400-e29b-41d4-a716-446655440000",
+  "items": [
+    { "productId": "660e8400-e29b-41d4-a716-446655440001", "quantity": 2 }
+  ]
+}
+
+> {% client.global.set("orderId", response.body.id); %}
+
+### Get order by id
+GET http://localhost:8080/api/orders/{{orderId}}
+
+### Get order - not found (404)
+GET http://localhost:8080/api/orders/00000000-0000-0000-0000-000000000000
+
+### Create order - validation error (400)
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+
+{
+  "items": []
+}
