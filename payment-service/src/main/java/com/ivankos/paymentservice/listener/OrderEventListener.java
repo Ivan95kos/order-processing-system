@@ -1,6 +1,6 @@
 package com.ivankos.paymentservice.listener;
 
-import com.ivankos.paymentservice.event.OrderCreatedEvent;
+import com.ivankos.paymentservice.event.consumer.OrderCreatedEvent;
 import com.ivankos.paymentservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

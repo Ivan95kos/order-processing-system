@@ -1,4 +1,4 @@
-package com.ivankos.paymentservice.event;
+package com.ivankos.paymentservice.event.consumer;
 
 import java.math.BigDecimal;
 import java.time.Instant;

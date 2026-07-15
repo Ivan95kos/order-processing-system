@@ -23,7 +23,7 @@ public class OrderService {
     @Value("${app.kafka.topic.order-events}")
     private final String orderEventsTopic;
 
-    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;
+    private final KafkaTemplate<String, OrderEvent> orderEventTemplate;
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
@@ -42,7 +42,7 @@ public class OrderService {
                 createOrderRequest.items()
         );
 
-        kafkaTemplate.send(orderEventsTopic, savedOrder.getId().toString(), orderCreatedEvent);
+        orderEventTemplate.send(orderEventsTopic, savedOrder.getId().toString(), orderCreatedEvent);
 
         return orderMapper.toResponse(savedOrder);
     }

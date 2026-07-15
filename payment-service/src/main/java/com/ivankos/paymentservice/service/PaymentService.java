@@ -1,6 +1,7 @@
 package com.ivankos.paymentservice.service;
 
-import com.ivankos.paymentservice.event.OrderCreatedEvent;
+import com.ivankos.paymentservice.event.consumer.OrderCreatedEvent;
+import com.ivankos.paymentservice.event.producer.PaymentEvent;
 import com.ivankos.paymentservice.model.Payment;
 import com.ivankos.paymentservice.model.PaymentStatus;
 import com.ivankos.paymentservice.repository.PaymentRepository;
@@ -8,9 +9,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -19,6 +23,10 @@ public class PaymentService {
 
     @Value("${app.payment.failure-threshold}")
     private final BigDecimal failureThreshold;
+    @Value("${app.kafka.topic.payment-events}")
+    private final String paymentEventsTopic;
+
+    private final KafkaTemplate<String, PaymentEvent> paymentEventTemplate;
 
     private final PaymentRepository paymentRepository;
 
@@ -35,13 +43,17 @@ public class PaymentService {
                 paymentStatus);
 
         try {
-            paymentRepository.save(payment);
+            payment = paymentRepository.save(payment);
         } catch (DataIntegrityViolationException exception) {
             log.info("Payment already exists for orderId {}, skipping duplicate", orderCreatedEvent.orderId());
             return;
         }
 
-        // 5. (наступний блок) publish result
+        var paymentEvent = PaymentEvent.from(payment, UUID.randomUUID(), Instant.now());
+
+        paymentEventTemplate.send(paymentEventsTopic, payment.getOrderId().toString(), paymentEvent);
+
+        log.info("Payment {} for orderId {}, event published", payment.getStatus(), payment.getOrderId());
     }
 
     private PaymentStatus decideOutcome(BigDecimal amount) {

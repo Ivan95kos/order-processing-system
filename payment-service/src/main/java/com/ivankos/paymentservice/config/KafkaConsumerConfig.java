@@ -1,6 +1,6 @@
 package com.ivankos.paymentservice.config;
 
-import com.ivankos.paymentservice.event.OrderCreatedEvent;
+import com.ivankos.paymentservice.event.consumer.OrderCreatedEvent;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.kafka.autoconfigure.KafkaProperties;
 import org.springframework.context.annotation.Bean;
