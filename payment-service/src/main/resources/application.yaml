@@ -22,3 +22,5 @@ app:
   kafka:
     topic:
       order-events: order-events
+  payment:
+    failure-threshold: 10000.00
