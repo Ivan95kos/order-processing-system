@@ -29,13 +29,12 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: order_db
     volumes:
       - postgresql_data:/var/lib/postgresql
-      - ./init-scripts/init-keycloak-db.sql:/docker-entrypoint-initdb.d/init-keycloak-db.sql
+      - ./init-db:/docker-entrypoint-initdb.d:ro
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 10s
       timeout: 10s
       retries: 5
