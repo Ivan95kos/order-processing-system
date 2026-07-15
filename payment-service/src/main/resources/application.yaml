@@ -12,3 +12,13 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: payment-service
+      auto-offset-reset: earliest
+
+app:
+  kafka:
+    topic:
+      order-events: order-events
