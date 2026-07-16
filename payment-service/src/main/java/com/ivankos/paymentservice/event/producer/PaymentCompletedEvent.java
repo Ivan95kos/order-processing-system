@@ -6,5 +6,12 @@ import java.util.UUID;
 public record PaymentCompletedEvent(
         UUID eventId,
         Instant occurredAt,
+        PaymentStatusEvent paymentStatus,
         UUID orderId) implements PaymentEvent {
+
+    public PaymentCompletedEvent(UUID eventId,
+                                 Instant occurredAt,
+                                 UUID orderId) {
+        this(eventId, occurredAt, PaymentStatusEvent.PAYMENT_COMPLETED, orderId);
+    }
 }

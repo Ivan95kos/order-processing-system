@@ -10,6 +10,8 @@ public sealed interface PaymentEvent permits PaymentCompletedEvent, PaymentFaile
 
     Instant occurredAt();
 
+    PaymentStatusEvent paymentStatus();
+
     UUID orderId();
 
     static PaymentEvent from(Payment payment, UUID eventId, Instant occurredAt) {
