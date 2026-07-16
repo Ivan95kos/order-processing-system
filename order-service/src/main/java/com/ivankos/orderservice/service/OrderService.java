@@ -2,12 +2,12 @@ package com.ivankos.orderservice.service;
 
 import com.ivankos.orderservice.dto.CreateOrderRequest;
 import com.ivankos.orderservice.dto.OrderResponse;
-import com.ivankos.orderservice.event.OrderEvent;
-import com.ivankos.orderservice.exception.OrderNotFoundException;
+import com.ivankos.orderservice.event.producer.OrderEvent;
 import com.ivankos.orderservice.mapper.OrderMapper;
 import com.ivankos.orderservice.model.Order;
 import com.ivankos.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -44,12 +45,15 @@ public class OrderService {
 
         orderEventTemplate.send(orderEventsTopic, savedOrder.getId().toString(), orderCreatedEvent);
 
+        log.info("Created order {} for customer {}", savedOrder.getId(), savedOrder.getCustomerId());
+
         return orderMapper.toResponse(savedOrder);
     }
 
     public OrderResponse getOrder(UUID orderId) {
-        var order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException("Order not found by id " + orderId));
+        var order = orderRepository.getOrderOrThrow(orderId);
+
+        log.info("Fetched order {}", order.getId());
 
         return orderMapper.toResponse(order);
     }

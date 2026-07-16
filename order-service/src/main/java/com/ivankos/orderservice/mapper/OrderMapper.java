@@ -2,7 +2,7 @@ package com.ivankos.orderservice.mapper;
 
 import com.ivankos.orderservice.dto.OrderItemRequest;
 import com.ivankos.orderservice.dto.OrderResponse;
-import com.ivankos.orderservice.event.OrderCreatedEvent;
+import com.ivankos.orderservice.event.producer.OrderCreatedEvent;
 import com.ivankos.orderservice.model.Order;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

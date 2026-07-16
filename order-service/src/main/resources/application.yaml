@@ -17,8 +17,12 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JacksonJsonSerializer
+    consumer:
+      group-id: order-service
+      auto-offset-reset: earliest
 
 app:
   kafka:
     topic:
       order-events: order-events
+      payment-events: payment-events

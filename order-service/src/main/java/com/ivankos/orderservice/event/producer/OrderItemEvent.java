@@ -1,4 +1,4 @@
-package com.ivankos.orderservice.event;
+package com.ivankos.orderservice.event.producer;
 
 import java.util.UUID;
 

@@ -1,5 +1,6 @@
 package com.ivankos.orderservice.model;
 
+import com.ivankos.orderservice.exception.InvalidOrderStateTransitionException;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -23,7 +24,7 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "customer_id",  nullable = false)
+    @Column(name = "customer_id", nullable = false)
     private UUID customerId;
 
     @Enumerated(EnumType.STRING)
@@ -48,5 +49,23 @@ public class Order {
                 .status(OrderStatus.PENDING)
                 .totalAmount(totalAmount)
                 .build();
+    }
+
+    public void markPaid() {
+        switch (status) {
+            case PENDING -> this.status = OrderStatus.PAID;
+            case PAID -> { /* idempotent no-op */ }
+            default -> throw new InvalidOrderStateTransitionException(
+                    "Cannot mark order as PAID from status " + status);
+        }
+    }
+
+    public void cancel() {
+        switch (status) {
+            case PENDING -> this.status = OrderStatus.CANCELLED;
+            case CANCELLED -> { /* idempotent no-op */ }
+            default -> throw new InvalidOrderStateTransitionException(
+                    "Cannot cancel order from status " + status);
+        }
     }
 }

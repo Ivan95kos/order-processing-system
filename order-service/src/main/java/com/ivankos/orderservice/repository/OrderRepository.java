@@ -1,9 +1,15 @@
 package com.ivankos.orderservice.repository;
 
+import com.ivankos.orderservice.exception.OrderNotFoundException;
 import com.ivankos.orderservice.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
 public interface OrderRepository extends JpaRepository<Order, UUID> {
+
+    default Order getOrderOrThrow(UUID orderId) {
+        return this.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException("Order not found by id " + orderId));
+    }
 }
