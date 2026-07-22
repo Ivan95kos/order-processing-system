@@ -4,11 +4,14 @@ import com.ivankos.inventoryservice.application.port.out.InventoryRepository;
 import com.ivankos.inventoryservice.domain.InventoryItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -35,8 +38,16 @@ class JpaInventoryRepository implements InventoryRepository {
     }
 
     @Override
+    @Transactional
     public void saveAll(Collection<InventoryItem> items) {
-        springDataInventoryRepository.saveAll(items.stream().map(this::toEntity).toList());
+        var productIdToItem = items.stream()
+                .collect(Collectors.toMap(InventoryItem::getProductId, Function.identity()));
+
+        springDataInventoryRepository.findAllById(productIdToItem.keySet()).forEach((jpaEntity -> {
+            var item = productIdToItem.get(jpaEntity.getProductId());
+            jpaEntity.setAvailable(item.getAvailable());
+            jpaEntity.setReserved(item.getReserved());
+        }));
     }
 
     private InventoryItem toDomain(InventoryItemJpaEntity inventoryItemEntity) {

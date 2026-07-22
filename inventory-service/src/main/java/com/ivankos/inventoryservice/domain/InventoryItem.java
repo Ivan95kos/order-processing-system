@@ -13,8 +13,8 @@ import java.util.UUID;
 public class InventoryItem {
 
     private final UUID productId;
-    private int available;
-    private int reserved;
+    private Integer available;
+    private Integer reserved;
 
     public static InventoryItem of(UUID productId, Integer available, Integer reserved) {
         return new InventoryItem(productId, available, reserved);
