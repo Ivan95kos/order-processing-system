@@ -4,11 +4,9 @@ import com.ivankos.inventoryservice.application.port.out.InventoryRepository;
 import com.ivankos.inventoryservice.domain.InventoryItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -20,25 +18,16 @@ class JpaInventoryRepository implements InventoryRepository {
     private final SpringDataInventoryRepository springDataInventoryRepository;
 
     @Override
-    public Optional<InventoryItem> findByProductId(UUID productId) {
-        return springDataInventoryRepository.findById(productId)
-                .map(this::toDomain);
-    }
-
-    @Override
     public List<InventoryItem> findAllByProductId(Collection<UUID> productIds) {
         return springDataInventoryRepository.findAllById(productIds).stream()
                 .map(this::toDomain)
                 .toList();
     }
 
+    // Must run inside the caller's transaction: relies on the first-level cache
+    // returning the same managed instances (and their versions) loaded earlier.
+    // A separate transaction would re-read fresh versions and silently lose updates.
     @Override
-    public void save(InventoryItem inventoryItem) {
-        springDataInventoryRepository.save(toEntity(inventoryItem));
-    }
-
-    @Override
-    @Transactional
     public void saveAll(Collection<InventoryItem> items) {
         var productIdToItem = items.stream()
                 .collect(Collectors.toMap(InventoryItem::getProductId, Function.identity()));
@@ -55,12 +44,5 @@ class JpaInventoryRepository implements InventoryRepository {
                 inventoryItemEntity.getProductId(),
                 inventoryItemEntity.getAvailable(),
                 inventoryItemEntity.getReserved());
-    }
-
-    private InventoryItemJpaEntity toEntity(InventoryItem inventoryItemDomain) {
-        return InventoryItemJpaEntity.create(
-                inventoryItemDomain.getProductId(),
-                inventoryItemDomain.getAvailable(),
-                inventoryItemDomain.getReserved());
     }
 }

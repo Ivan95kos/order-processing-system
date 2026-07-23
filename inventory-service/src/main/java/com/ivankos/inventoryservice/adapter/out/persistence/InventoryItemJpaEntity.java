@@ -39,6 +39,10 @@ public class InventoryItemJpaEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Version
+    @Column(nullable = false, columnDefinition = "0")
+    private Long version;
+
     public static InventoryItemJpaEntity create(UUID productId, int available, int reserved) {
         return InventoryItemJpaEntity.builder()
                 .productId(productId)

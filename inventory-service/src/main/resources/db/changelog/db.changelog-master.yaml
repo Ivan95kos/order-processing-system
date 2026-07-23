@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changes/001-create-inventory_items-table.sql
   - include:
       file: db/changelog/changes/002-seed-inventory-items.sql
+  - include:
+      file: db/changelog/changes/003-add-version-field-to-inventory_items.sql
