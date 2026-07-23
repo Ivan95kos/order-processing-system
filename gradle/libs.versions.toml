@@ -24,6 +24,9 @@ lombok-mapstruct-binding = { module = "org.projectlombok:lombok-mapstruct-bindin
 
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 
+spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
+
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }

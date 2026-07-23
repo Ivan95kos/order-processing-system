@@ -15,7 +15,7 @@ All commands are run from the repo root (Gradle wrapper).
 
 Ports: `order-service` 8080, `payment-service` 8081, `inventory-service` 8082, Keycloak 8181 (deliberately not 8080).
 
-Tests that boot a Spring context need Postgres and Kafka reachable — start `docker compose up -d postgres kafka` first. Pure unit tests (domain objects, services with mocked ports) run without any infrastructure and should stay that way. Testcontainers is not wired up yet; integration tests are a later milestone.
+Integration tests that boot a Spring context bring their own infrastructure via Testcontainers (currently `inventory-service` only): they extend `IntegrationTestSupport`, which starts a throwaway Postgres and switches the Kafka listener off, so they need a running Docker daemon but not `docker compose`. Pure unit tests (domain objects, services with mocked ports) run without any infrastructure and should stay that way.
 
 Kafka CLI runs through `docker exec` (no `.sh` scripts on the Windows host), single-line commands only:
 
@@ -121,4 +121,4 @@ These are deliberate choices, not defaults - follow them when writing new code.
 - **Assert that state is unchanged after an expected exception**, not just that the exception was thrown — that is what proves the guard runs before the mutation rather than halfway through it.
 - **Prefer `ArgumentCaptor` over matcher-heavy verification** when asserting on a published event; capture it, then assert on its type and fields.
 - **Know what a test does not cover and say so in a comment.** A mocked `TransactionTemplate` that just runs the callback verifies flow, not rollback; real atomicity needs an integration test.
-- Integration tests via Testcontainers are a later milestone — do not add `@SpringBootTest` classes that silently depend on a running `docker compose`.
+- Integration tests use Testcontainers — extend `IntegrationTestSupport` (Postgres via `@ServiceConnection`, Kafka listener off, `test` profile for SQL logging) rather than adding a bare `@SpringBootTest` that silently depends on a running `docker compose`. `ReserveStockConcurrencyIntegrationTest` shows when a real DB earns its keep: reach for one only where the point is behaviour Testcontainers can show and mocks can't (here, the optimistic-lock retry under concurrency).

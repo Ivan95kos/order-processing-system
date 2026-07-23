@@ -1,0 +1,15 @@
+# Overlays the main application.yaml when the "test" profile is active (see @ActiveProfiles).
+# Makes the SQL that integration tests run visible and readable in the log:
+#   format_sql  -> multi-line, indented statements instead of one long line
+#   SQL=DEBUG   -> log each statement Hibernate issues
+#   bind=TRACE  -> show the bound parameter values in place of the '?' placeholders
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

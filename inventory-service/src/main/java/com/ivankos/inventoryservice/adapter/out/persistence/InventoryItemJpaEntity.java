@@ -2,10 +2,8 @@ package com.ivankos.inventoryservice.adapter.out.persistence;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.domain.Persistable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
@@ -43,11 +41,4 @@ public class InventoryItemJpaEntity {
     @Column(nullable = false, columnDefinition = "0")
     private Long version;
 
-    public static InventoryItemJpaEntity create(UUID productId, int available, int reserved) {
-        return InventoryItemJpaEntity.builder()
-                .productId(productId)
-                .available(available)
-                .reserved(reserved)
-                .build();
-    }
 }

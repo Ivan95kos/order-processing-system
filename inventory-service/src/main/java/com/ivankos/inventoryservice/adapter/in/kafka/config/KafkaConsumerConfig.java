@@ -44,11 +44,23 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, OrderCreatedEvent> orderCreatedEventKafkaListenerContainerFactory(
+            KafkaProperties kafkaProperties,
             ConsumerFactory<String, OrderCreatedEvent> orderCreatedEventConsumerFactory) {
 
         ConcurrentKafkaListenerContainerFactory<String, OrderCreatedEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(orderCreatedEventConsumerFactory);
+
+        // Hand-rolled factory: it does NOT inherit spring.kafka.listener.* the way the autoconfigured one
+        // does. Only auto-startup is wired through (tests need the listener off without a broker);
+        // concurrency, ack-mode, poll-timeout and the CommonErrorHandler are NOT applied and must be set
+        // here by hand if ever needed.
+        //
+        // The systemic alternative is ConcurrentKafkaListenerContainerFactoryConfigurer, which applies the
+        // whole spring.kafka.listener.* group - rejected for now because its configure() is declared on
+        // <Object, Object> and needs an unchecked cast to fit a typed factory. Revisit at the retry/DLQ
+        // step, where the listener config stops being a single property.
+        factory.setAutoStartup(kafkaProperties.getListener().isAutoStartup());
 
         return factory;
     }
